@@ -1,8 +1,11 @@
 import 'package:flutter/widgets.dart';
+import 'package:mikesweb/utils/constants.dart';
 
 class AppLink {
-  static const String kHomePath = "/home";
-  static const String kSplashPath = "/splash";
+  static const String kHomePath = AppConstants.homePath;
+  static const String kSplashPath = AppConstants.splashPath;
+  static const String kSignInPath = AppConstants.signInPath;
+  static const String kSignUpPath = AppConstants.signUpPath;
 
   static const String kTabParam = "tab";
   static const String kIdParam = "id";
@@ -35,6 +38,12 @@ class AppLink {
     switch (location) {
       case kHomePath:
         return kHomePath;
+      case kSignInPath:
+        return kSignInPath;
+      case kSignUpPath:
+        return kSignUpPath;
+      case kSplashPath:
+        return kSplashPath;
       default:
         var loc = '$kHomePath?';
         loc += addKeyValPair(key: kIdParam, value: itemId);

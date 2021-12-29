@@ -1,10 +1,14 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mikesweb/components/custom_textfield.dart';
-import 'package:mikesweb/components/footer.dart';
 import 'package:mikesweb/models/app_pages.dart';
+import 'package:mikesweb/models/app_state_manager.dart';
+import 'package:mikesweb/screens/login.dart';
+import 'package:mikesweb/utils/constants.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   static MaterialPage page() {
@@ -21,460 +25,495 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  bool _showAppTitle = false;
   bool _showDrawer = false;
-  bool _showSearchTitle = true;
-  bool _showDashboard = false;
-  bool _showCircleAvatar = true;
+  bool _showSearchTitle = false;
 
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _emailForUpdatesController =
       TextEditingController();
 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  double? width;
+
+  @override
+  void initState() {
+    width = AppConstants.portraitBreakpoint;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
+    width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
     print("Width: $width");
 
-    if (width <= 500) {
-      setState(() {
-        _showAppTitle = false;
-        _showSearchTitle = false;
-        _showDrawer = true;
-        _showDashboard = false;
-        _showCircleAvatar = true;
-      });
-    } else if ((width > 500) && (width <= 800)) {
-      setState(() {
-        _showAppTitle = true;
-        _showDrawer = true;
-        _showDashboard = false;
-        _showSearchTitle = false;
-        _showCircleAvatar = true;
-      });
-    } else if ((width > 800) && (width <= 1100)) {
-      setState(() {
-        _showAppTitle = true;
-        _showDrawer = false;
-        _showDashboard = true;
-        _showSearchTitle = true;
-        _showCircleAvatar = true;
-      });
-    } else {
-      setState(() {
-        _showAppTitle = true;
-        _showDrawer = false;
-        _showSearchTitle = true;
-        _showDashboard = true;
-        _showCircleAvatar = true;
-      });
-    }
-
-    final _scaffoldKey = GlobalKey<ScaffoldState>();
-
-    return SafeArea(
-      child: Scaffold(
-        key: _scaffoldKey,
-        drawer: const Drawer(),
-        body: Column(
-          children: [
-            //Nav bar
-            NavBar(
-                scaffoldKey: _scaffoldKey,
-                showDrawer: _showDrawer,
-                showAppTitle: _showAppTitle,
-                showSearchTitle: _showSearchTitle,
-                searchController: _searchController,
-                showCircleAvatar: _showCircleAvatar),
-
-            // Toggle search field
-
-            _showSearchTitle == false
-                ? Container(
-                    height: 50,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            keyField: UniqueKey(),
-
-                            hintText: "Search for anything ...",
-                            suffixIcon: ElevatedButton(
-                              style: const ButtonStyle(),
-                              onPressed: () {},
-                              child: const Text("Search"),
-                            ),
-                            controller: _searchController,
-                            width: 0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : const SizedBox(
-                    height: 0,
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      appBar: width! <= AppConstants.portraitBreakpoint
+          ? AppBar(
+              actions: [
+                IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _showSearchTitle = !_showSearchTitle;
+                      });
+                    },
+                    icon: const Icon(Icons.search)),
+                const SizedBox(
+                  width: 10,
+                ),
+                CircleAvatar(
+                  backgroundColor: Colors.indigo,
+                  child: Text(
+                    "MD",
+                    style: Theme.of(context).textTheme.headline3,
                   ),
-            Expanded(
-              child: Row(
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+              ],
+              bottom: PreferredSize(
+                child: _showSearchTitle == true
+                    ? CustomTextField(
+                        hintText: "Search for anything ...",
+                        suffixIcon: ElevatedButton(
+                          style: const ButtonStyle(),
+                          onPressed: () {},
+                          child: const Text("Search"),
+                        ),
+                        controller: _searchController,
+                        width: width!,
+                      )
+                    : const Expanded(
+                        child: SizedBox(
+                        height: 0,
+                      )),
+                preferredSize:
+                    Size.fromHeight(_showSearchTitle == true ? 50 : 1),
+              ),
+            )
+          :
+          // Landscape Nav Bar
+          AppBar(
+              leading: const SizedBox(),
+              title: Text(
+                "MikesWeb",
+                style: Theme.of(context).textTheme.headline2,
+              ),
+              actions: [
+                CustomTextField(
+                  hintText: "Search for anything ...",
+                  suffixIcon: ElevatedButton(
+                    style: const ButtonStyle(),
+                    onPressed: () {},
+                    child: const Text("Search"),
+                  ),
+                  controller: _searchController,
+                  width: 400,
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                CircleAvatar(
+                  backgroundColor: Colors.indigo,
+                  child: Text(
+                    "MD",
+                    style: Theme.of(context).textTheme.headline3,
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+              ],
+            ),
+      key: _scaffoldKey,
+      drawer: Drawer(
+        child: AppDrawer(showAppTitle:
+        width! <= AppConstants.portraitBreakpoint),
+      ),
+      body: SizedBox(
+        height: height,
+        child: width! <= AppConstants.portraitBreakpoint
+            ? SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                      height: 300,
+                      width: width,
+                      child: Center(
+                          child: PageView(
+                            physics:const  BouncingScrollPhysics(),
+                            children: const [
+                              //TODO: Slide
+                            ],
+                          )
+                      ),
+                      color: Colors.green,
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    SizedBox(
+                      height: 500,
+                      child: Center(
+                          child: Text(
+                        "Main",
+                        style: Theme.of(context).textTheme.headline3,
+                      )),
+                    ),
+                    Container(
+                        color: AppConstants.footerColor,
+                        child: width! <= AppConstants.portraitBreakpoint
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: footerContents())
+                            : Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: footerContents())),
+                    Container(
+                      height: 30,
+                      color: Theme.of(context).backgroundColor.withOpacity(0.9),
+                      child: const Center(
+                          child: Text("All rights reserved. Copyright @ 2021")),
+                    )
+                  ],
+                ),
+              )
+            : Row(
                 children: [
-                  _showDrawer == false
-                      ? Expanded(
-                          flex: 2,
-                          child: SizedBox(
-                            height: height,
-                            child: Container(
-                              color: Colors.red,
-                              child: ListView(
-                                shrinkWrap: true,
-                                key: UniqueKey(),
-                                children: const [
-                                  Text("First"),
-                                  Text("First"),
-                                  Text("First"),
-                                ],
-                              ),
-                            ),
+                  width! >= AppConstants.portraitBreakpoint
+                      ? SizedBox(
+                          width: AppConstants.drawerWidth,
+                          height: height,
+                          child: AppDrawer(
+                            showAppTitle:
+                                width! <= AppConstants.portraitBreakpoint,
                           ),
                         )
                       : const SizedBox(
                           width: 0,
                         ),
-                  Expanded(
-                    flex: 4,
-                    child: SizedBox(
-                      height: height,
-                      child: Container(
-                        color: Colors.blue,
-                        child: ListView(
-                          key: UniqueKey(),
-                          shrinkWrap: true,
-                          children: [
-                            Container(
-                              height: 300,
-                              width: 600,
-                              color: Colors.green,
-                            ),
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            SizedBox(
-                              height: 500,
-                              child: Center(
-                                  child: Text(
-                                "Main",
-                                style: Theme.of(context).textTheme.headline3,
-                              )),
-                            ),
-                            SizedBox(
+                  SizedBox(
+                    height: height,
+                    width: width! - AppConstants.drawerWidth,
+                    child: ListView(
+                      children: [
+                        Container(
+                          height: 300,
+                          width: width! - AppConstants.drawerWidth,
+                          color: Colors.green,
+                          child: Center(
+                              child: Text(
+                            "Head Section",
+                            style: Theme.of(context).textTheme.headline3,
+                          )),
+                        ),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                        Container(
+                          color: Colors.teal,
+                          height: 500,
+                          width: width! - AppConstants.drawerWidth,
+                          child: Center(
+                              child: Text(
+                            "Main",
+                            style: Theme.of(context).textTheme.headline3,
+                          )),
+                        ),
 
-
-
-
-                              child: _showDrawer == true ? ListView(
-                                shrinkWrap: true,
+                        Container(
+                            color: AppConstants.footerColor,
+                            width: width! - AppConstants.drawerWidth,
+                            child: Row(
                                 children: [
                                   Container(
-                                    decoration: const BoxDecoration(
+                                    width: width! - AppConstants.drawerWidth,
+
+                                    decoration: BoxDecoration(
                                         gradient: LinearGradient(
-                                            colors: [Color(0xff22179c), Color(0xff22179c)])),
+                                            colors: [AppConstants.footerColor, AppConstants.footerColor])),
                                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                    child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          RichText(
-                                            text: TextSpan(
+                                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                      RichText(
+                                        text: TextSpan(
+                                          text:
+                                          "If you have questions, suggestions or required troubleshooting, write to us at ",
+                                          style: GoogleFonts.quicksand(
+                                              textStyle: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w600)),
+                                          children: <TextSpan>[
+                                            TextSpan(
+                                                text: " support@emart.org",
+                                                style: const TextStyle(color: Colors.red),
+                                                recognizer: TapGestureRecognizer()
+                                                  ..onTap = () {
+                                                    print("Click");
+                                                  },
+                                                onEnter: (event) {}),
+                                            const TextSpan(
                                               text:
-                                              "If you have questions, suggestions or required troubleshooting, write to us at ",
-                                              style: GoogleFonts.quicksand(textStyle: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
-                                              children: <TextSpan>[
-                                                TextSpan(
-                                                    text: " support@emart.org",
-                                                    style: const TextStyle(color: Colors.red),
-                                                    recognizer: TapGestureRecognizer()
-                                                      ..onTap = () {
-                                                        print("Click");
-                                                      },
-                                                    onEnter: (event) {}),
-                                                const TextSpan(
-                                                  text:
-                                                  " and we will try to figure it out.\n\nPlease provide us your email for daily updates of our products and services. ",
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 30,
-                                          ),
-                                          CustomTextField(
-                                            keyField: UniqueKey(),
-                                            hintText: "Email",
-                                            suffixIcon: IconButton(
-                                              onPressed: () {
-                                                _emailForUpdatesController.clear();
-                                              },
-                                              icon: const Icon(
-                                                Icons.clear,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            controller: _emailForUpdatesController,
-                                            width: 500,
-                                          ),
-                                          const SizedBox(
-                                            height: 15,
-                                          ),
-                                          SizedBox(
-                                            height: 50,
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                primary: Colors.red,
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(10)),
-                                              ),
-                                              onPressed: () {},
-                                              child: Text(
-                                                "Subscribe",
-                                                style: GoogleFonts.quicksand(
-                                                    textStyle: const TextStyle(
-                                                        fontSize: 18, fontWeight: FontWeight.w500)),
-                                              ),
-                                            ),
-                                          ),
-                                        ]),
-                                  ),
-                                  Container(
-                                    color: const Color(0xff22179c),
-                                    child: Card(
-                                      color: const Color(0xff22179c),
-                                      child: Column(
-                                        children: [
-                                          ListTile(
-                                            leading:  const Icon(Icons.star, color: Colors.white,),
-                                            hoverColor: Colors.redAccent,
-                                            onTap: (){},
-                                            title: Text(
-                                              "Facebook",
-                                              style: GoogleFonts.quicksand(
-                                                  textStyle:
-                                                  const TextStyle(fontSize: 20, color: Colors.white)),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ): Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                          gradient: LinearGradient(
-                                              colors: [Color(0xff22179c), Color(0xff22179c)])),
-                                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                      child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            RichText(
-                                              text: TextSpan(
-                                                text:
-                                                "If you have questions, suggestions or required troubleshooting, write to us at ",
-                                                style: GoogleFonts.quicksand(textStyle: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
-                                                children: <TextSpan>[
-                                                  TextSpan(
-                                                      text: " support@emart.org",
-                                                      style: const TextStyle(color: Colors.red),
-                                                      recognizer: TapGestureRecognizer()
-                                                        ..onTap = () {
-                                                          print("Click");
-                                                        },
-                                                      onEnter: (event) {}),
-                                                  const TextSpan(
-                                                    text:
-                                                    " and we will try to figure it out.\n\nPlease provide us your email for daily updates of our products and services. ",
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              height: 30,
-                                            ),
-                                            CustomTextField(
-                                              keyField: UniqueKey(),
-
-                                              hintText: "Email",
-                                              suffixIcon: IconButton(
-                                                onPressed: () {
-                                                  _emailForUpdatesController.clear();
-                                                },
-                                                icon: const Icon(
-                                                  Icons.clear,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              controller: _emailForUpdatesController,
-                                              width: 500,
-                                            ),
-                                            const SizedBox(
-                                              height: 15,
-                                            ),
-                                            SizedBox(
-                                              height: 50,
-                                              child: ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  primary: Colors.red,
-                                                  shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(10)),
-                                                ),
-                                                onPressed: () {},
-                                                child: Text(
-                                                  "Subscribe",
-                                                  style: GoogleFonts.quicksand(
-                                                      textStyle: const TextStyle(
-                                                          fontSize: 18, fontWeight: FontWeight.w500)),
-                                                ),
-                                              ),
-                                            ),
-                                          ]),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Container(
-                                      color: const Color(0xff22179c),
-                                      child: Card(
-                                        color: const Color(0xff22179c),
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          children: [
-                                            ListTile(
-                                              leading:  const Icon(Icons.star, color: Colors.white,),
-                                              hoverColor: Colors.redAccent,
-                                              onTap: (){},
-                                              title: Text(
-                                                "Facebook",
-                                                style: GoogleFonts.quicksand(
-                                                    textStyle:
-                                                    const TextStyle(fontSize: 20, color: Colors.white)),
-                                              ),
-                                            ),
+                                              " and we will try to figure it out.\n\nPlease provide us your email for daily updates of our products and services. ",
+                                            )
                                           ],
                                         ),
                                       ),
-                                    ),
-                                  )
-                                ],
-                              )
-                            ),
-                            Container(
-                              height: 30,
-                              color: Colors.indigo,
-                              child: const Center(
-                                  child: Text("All rights reserved. Copyright @ 2021")),
-                            )
-                          ],
-                        ),
-                      ),
+                                      const SizedBox(
+                                        height: 30,
+                                      ),
+                                      CustomTextField(
+                                        hintText: "Email",
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            _emailForUpdatesController.clear();
+                                          },
+                                          icon: const Icon(
+                                            Icons.clear,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        controller: _emailForUpdatesController,
+                                        width: 500,
+                                      ),
+                                      const SizedBox(
+                                        height: 15,
+                                      ),
+                                      SizedBox(
+                                        height: 50,
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            primary: Colors.red,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(10)),
+                                          ),
+                                          onPressed: () {},
+                                          child: Text(
+                                            "Subscribe",
+                                            style: GoogleFonts.quicksand(
+                                                textStyle: const TextStyle(
+                                                    fontSize: 18, fontWeight: FontWeight.w500)),
+                                          ),
+                                        ),
+                                      ),
+                                    ]),
+                                  ),
+                                ])),
+                        Container(
+                          height: 30,
+                          width: width! - AppConstants.drawerWidth,
+                          color: Theme.of(context)
+                              .backgroundColor
+                              .withOpacity(0.8),
+                          child: const Center(
+                              child: Text(
+                                  "All rights reserved. Copyright @ 2021")),
+                        )
+                      ],
                     ),
                   )
                 ],
               ),
-            )
-          ],
-        ),
       ),
     );
   }
+
+  footerContents() {
+    return [
+      Container(
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+                colors: [AppConstants.footerColor, AppConstants.footerColor])),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          RichText(
+            text: TextSpan(
+              text:
+                  "If you have questions, suggestions or required troubleshooting, write to us at ",
+              style: GoogleFonts.quicksand(
+                  textStyle: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600)),
+              children: <TextSpan>[
+                TextSpan(
+                    text: " support@emart.org",
+                    style: const TextStyle(color: Colors.red),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        print("Click");
+                      },
+                    onEnter: (event) {}),
+                const TextSpan(
+                  text:
+                      " and we will try to figure it out.\n\nPlease provide us your email for daily updates of our products and services. ",
+                )
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 30,
+          ),
+          CustomTextField(
+            hintText: "Email",
+            suffixIcon: IconButton(
+              onPressed: () {
+                _emailForUpdatesController.clear();
+              },
+              icon: const Icon(
+                Icons.clear,
+                color: Colors.black,
+              ),
+            ),
+            controller: _emailForUpdatesController,
+            width: 500,
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          SizedBox(
+            height: 50,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Colors.red,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: () {},
+              child: Text(
+                "Subscribe",
+                style: GoogleFonts.quicksand(
+                    textStyle: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w500)),
+              ),
+            ),
+          ),
+        ]),
+      ),
+      Container(
+        color: AppConstants.footerColor,
+        child: Card(
+          color: AppConstants.footerColor,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.star,
+                  color: Colors.white,
+                ),
+                hoverColor: Colors.teal,
+                onTap: () {},
+                title: Text(
+                  "Facebook",
+                  style: GoogleFonts.quicksand(
+                      textStyle:
+                          const TextStyle(fontSize: 20, color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      )
+    ];
+  }
 }
 
-class NavBar extends StatelessWidget {
-  const NavBar(
-      {Key? key,
-      required bool showDrawer,
-      required bool showAppTitle,
-      required bool showSearchTitle,
-      required TextEditingController searchController,
-      required bool showCircleAvatar,
-      required GlobalKey<ScaffoldState> scaffoldKey})
-      : _showDrawer = showDrawer,
-        _showAppTitle = showAppTitle,
-        _showSearchTitle = showSearchTitle,
-        _searchController = searchController,
-        _showCircleAvatar = showCircleAvatar,
-        _scaffoldKey = scaffoldKey,
+class AppDrawer extends StatelessWidget {
+  const AppDrawer({Key? key, required bool showAppTitle})
+      : _showAppTitle = showAppTitle,
         super(key: key);
 
-  final bool _showDrawer;
   final bool _showAppTitle;
-  final bool _showSearchTitle;
-  final TextEditingController _searchController;
-  final bool _showCircleAvatar;
-  final GlobalKey<ScaffoldState> _scaffoldKey;
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: 50,
-        child: Row(
-          children: [
-            _showDrawer
-                ? Expanded(
-                    flex: 1,
-                    child: IconButton(
-                        onPressed: () {
-                          _scaffoldKey.currentState?.openDrawer();
-                        },
-                        icon: Icon(
-                            _scaffoldKey.currentState!.isDrawerOpen == true
-                                ? Icons.clear
-                                : Icons.menu)))
-                : const SizedBox(),
-            _showAppTitle
-                ? Expanded(
-                    flex: 2,
-                    child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          "MikesWeb",
-                          style: Theme.of(context).textTheme.headline2,
-                        )),
-                  )
-                : const SizedBox(
-                    width: 20,
+    return SafeArea(
+      child: Column(
+        children: [
+          _showAppTitle == true
+              ? SizedBox(
+                  height: 200,
+                  child: Stack(
+                    children: [
+                      Text(
+                        "MikesWeb",
+                        style: Theme.of(context).textTheme.headline2,
+                      ),
+                    ],
                   ),
-            _showSearchTitle
-                ? Expanded(
-                    flex: 3,
-                    child: CustomTextField(
-                      keyField: UniqueKey(),
+                )
+              : const SizedBox(),
+          const Divider(
+            height: 5,
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
 
-                      hintText: "Search for anything ...",
-                      suffixIcon: ElevatedButton(
-                        style: const ButtonStyle(),
-                        onPressed: () {},
-                        child: const Text("Search"),
-                      ),
-                      controller: _searchController,
-                      width: 200,
-                    ))
-                : const SizedBox(
-                    width: 200,
-                  ),
-            _showCircleAvatar
-                ? Expanded(
-                    flex: 1,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.indigo,
-                      child: Text(
-                        "MD",
-                        style: Theme.of(context).textTheme.headline3,
-                      ),
-                    ),
-                  )
-                : const SizedBox()
-          ],
-        ),
-        color: Theme.of(context).backgroundColor);
+            title: const Text("Home"),
+            onTap: () {},
+
+            hoverColor: Colors.teal[200],
+          ),
+          ListTile(
+            leading: const Icon(Icons.mail),
+
+            title: const Text("Inbox"),
+            onTap: () {},
+
+            hoverColor: Colors.teal[200],
+          ),
+          ListTile(
+            leading: const Icon(Icons.explore),
+
+            title: const Text("Explore"),
+            onTap: () {},
+
+            hoverColor: Colors.teal[200],
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+
+            title: const Text("Settings"),
+            onTap: () {},
+
+            hoverColor: Colors.teal[200],
+          ),
+          ListTile(
+            leading: const Icon(Icons.star),
+
+            title: const Text("Sign Up"),
+            onTap: () {},
+
+            hoverColor: Colors.teal[200],
+          ),
+          ListTile(
+            leading: const Icon(Icons.star),
+
+            title: const Text("Sign In"),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const  SignIn()));
+            },
+
+            hoverColor: Colors.teal[200],
+          ),
+          ListTile(
+            leading: const Icon(Icons.star),
+
+            title: const Text("Log Out"),
+            onTap: () {
+              Provider.of<AppStateManager>(context, listen: false).logout();
+              print("Logout Clicked");
+            },
+
+            hoverColor: Colors.teal[200],
+          )
+        ],
+      ),
+    );
   }
 }
