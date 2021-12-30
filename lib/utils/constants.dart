@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class AppConstants {
   static Color footerColor =  const  Color(0xff22179c);
+  static Color appMainThemeColor =  const  Color(0xff7fc19c);
   static double  portraitBreakpoint =   900.0;
   static double  drawerWidth =   200.0;
   static const int home = 0;
@@ -16,5 +17,9 @@ class AppConstants {
   static const String splashPath = "/splash";
   static const String signInPath = "/signin";
   static const String signUpPath = "/signup";
+  static const String notFoundPath = "*";
+
+  static const  serverUrl = "https://project-x.up.railway.app/";
+
 
 }

@@ -32,7 +32,9 @@ dependencies:
   provider:
   shared_preferences:
   google_fonts:
-  url_launcher:
+  url_launcher: 
+  graphql_flutter: 
+
 
 
   # The following adds the Cupertino Icons font to your application.

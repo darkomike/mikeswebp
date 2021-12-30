@@ -53,6 +53,7 @@ class _HomeState extends State<Home> {
       resizeToAvoidBottomInset: true,
       appBar: width! <= AppConstants.portraitBreakpoint
           ? AppBar(
+
               actions: [
                 IconButton(
                     onPressed: () {
@@ -94,14 +95,17 @@ class _HomeState extends State<Home> {
                 preferredSize:
                     Size.fromHeight(_showSearchTitle == true ? 50 : 1),
               ),
+        backgroundColor: Colors.teal,
             )
           :
           // Landscape Nav Bar
           AppBar(
-              leading: const SizedBox(),
+            backgroundColor: Colors.teal,
+
+            leading: const SizedBox(),
               title: Text(
                 "MikesWeb",
-                style: Theme.of(context).textTheme.headline2,
+                style: GoogleFonts.parisienne(textStyle: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               ),
               actions: [
                 CustomTextField(
@@ -114,9 +118,8 @@ class _HomeState extends State<Home> {
                   controller: _searchController,
                   width: 400,
                 ),
-                const SizedBox(
-                  width: 10,
-                ),
+                const SizedBox(width: 10,),
+
                 CircleAvatar(
                   backgroundColor: Colors.indigo,
                   child: Text(
@@ -124,6 +127,13 @@ class _HomeState extends State<Home> {
                     style: Theme.of(context).textTheme.headline3,
                   ),
                 ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Container(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text("@username", style: GoogleFonts.lobster(textStyle: const TextStyle(fontSize: 20, color: Colors.black)),)),
+
                 const SizedBox(
                   width: 10,
                 ),
@@ -307,12 +317,12 @@ class _HomeState extends State<Home> {
                         Container(
                           height: 30,
                           width: width! - AppConstants.drawerWidth,
-                          color: Theme.of(context)
-                              .backgroundColor
-                              .withOpacity(0.8),
-                          child: const Center(
+                          color: Colors.black.withOpacity(0.9),
+                          child:  Center(
                               child: Text(
-                                  "All rights reserved. Copyright @ 2021")),
+                                  "All rights reserved. Copyright @ 2021", style: GoogleFonts.quicksand(
+                                  textStyle: const TextStyle(
+                                      fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),) ),
                         )
                       ],
                     ),
@@ -442,7 +452,7 @@ class AppDrawer extends StatelessWidget {
                     children: [
                       Text(
                         "MikesWeb",
-                        style: Theme.of(context).textTheme.headline2,
+                        style: GoogleFonts.parisienne(textStyle: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -452,15 +462,15 @@ class AppDrawer extends StatelessWidget {
             height: 5,
           ),
           ListTile(
-            leading: const Icon(Icons.home),
+            leading:  Icon(Icons.dashboard, color:Theme.of(context).iconTheme.color ,),
 
-            title: const Text("Home"),
+            title: const Text("Dashboard"),
             onTap: () {},
 
             hoverColor: Colors.teal[200],
           ),
           ListTile(
-            leading: const Icon(Icons.mail),
+            leading:  Icon(Icons.mail, color: Theme.of(context).iconTheme.color),
 
             title: const Text("Inbox"),
             onTap: () {},
@@ -468,7 +478,7 @@ class AppDrawer extends StatelessWidget {
             hoverColor: Colors.teal[200],
           ),
           ListTile(
-            leading: const Icon(Icons.explore),
+            leading:  Icon(Icons.explore, color: Theme.of(context).iconTheme.color),
 
             title: const Text("Explore"),
             onTap: () {},
@@ -476,7 +486,7 @@ class AppDrawer extends StatelessWidget {
             hoverColor: Colors.teal[200],
           ),
           ListTile(
-            leading: const Icon(Icons.settings),
+            leading:  Icon(Icons.settings, color: Theme.of(context).iconTheme.color),
 
             title: const Text("Settings"),
             onTap: () {},
@@ -484,25 +494,28 @@ class AppDrawer extends StatelessWidget {
             hoverColor: Colors.teal[200],
           ),
           ListTile(
-            leading: const Icon(Icons.star),
+            leading:  Icon(Icons.star, color: Theme.of(context).iconTheme.color),
 
             title: const Text("Sign Up"),
-            onTap: () {},
-
-            hoverColor: Colors.teal[200],
-          ),
-          ListTile(
-            leading: const Icon(Icons.star),
-
-            title: const Text("Sign In"),
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const  SignIn()));
+              Provider.of<AppStateManager>(context, listen: false).goToSignUp();
+              print("Sign Up Clicked");
             },
 
             hoverColor: Colors.teal[200],
           ),
           ListTile(
-            leading: const Icon(Icons.star),
+            leading:  Icon(Icons.star, color: Theme.of(context).iconTheme.color),
+
+            title: const Text("Sign In"),
+            onTap: () {
+              Provider.of<AppStateManager>(context, listen: false).goToSignIn();
+              print("Sign In Clicked");            },
+
+            hoverColor: Colors.teal[200],
+          ),
+          ListTile(
+            leading:  Icon(Icons.star, color: Theme.of(context).iconTheme.color),
 
             title: const Text("Log Out"),
             onTap: () {

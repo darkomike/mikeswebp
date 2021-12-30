@@ -5,4 +5,5 @@ class AppPages {
   static String homePath = AppConstants.homePath;
   static String signinPath = AppConstants.signInPath;
   static String signUpPath = AppConstants.signUpPath;
+  static String notFoundPath = AppConstants.notFoundPath;
 }

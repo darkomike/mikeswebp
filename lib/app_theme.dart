@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mikesweb/utils/constants.dart';
 
 class AppTheme {
   static TextTheme lightTextTheme = TextTheme(
@@ -61,6 +62,11 @@ class AppTheme {
 
   static ThemeData light() {
     return ThemeData(
+      primaryColor: AppConstants.appMainThemeColor,
+      iconTheme: const IconThemeData(
+        color: Colors.black,
+        size: 18
+      ),
       drawerTheme: DrawerThemeData(
         backgroundColor: Colors.white.withOpacity(0.9)
       ),
@@ -86,6 +92,10 @@ class AppTheme {
 
   static ThemeData dark() {
     return ThemeData(
+      iconTheme: const IconThemeData(
+          color: Colors.white,
+          size: 18
+      ),
       drawerTheme: DrawerThemeData(
           backgroundColor: Colors.black.withOpacity(0.9)
       ),
