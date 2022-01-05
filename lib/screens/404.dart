@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mikesweb/components/custom_textfield.dart';
 import 'package:mikesweb/models/app_pages.dart';
 import 'package:mikesweb/models/app_state_manager.dart';
 import 'package:provider/provider.dart';

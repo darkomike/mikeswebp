@@ -37,6 +37,7 @@ class _SignUpState extends State<SignUp> {
       register (registerInput: \$registerInput){
       email
       token
+      username
       }
     
     }
@@ -56,18 +57,6 @@ class _SignUpState extends State<SignUp> {
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: AppConstants.appMainThemeColor,
-      // floatingActionButton: FloatingActionButton.extended(
-      //     backgroundColor: Colors.teal,
-      //     onPressed: () {
-      //       //TODO: Move to Home - Sign Up
-      //       Provider.of<AppStateManager>(context, listen: false).goToHome();
-      //     },
-      //     icon: const Icon(Icons.home),
-      //     label: Text(
-      //       "Home",
-      //       style: GoogleFonts.quicksand(
-      //           textStyle: const TextStyle(color: Colors.white)),
-      //     )),
       body: SafeArea(
           child: SingleChildScrollView(
         child: SizedBox(
@@ -200,40 +189,18 @@ class _SignUpState extends State<SignUp> {
                           );
                         },
                         onCompleted: (resultData) {
-                          print("Result Data: $resultData");
+                          // print("Result Data: $resultData");
 
                           resultData != null
-                              ? Timer(const Duration(seconds: 8), (){
-                            showDialog<void>(
-                              context: context,
-                              builder: (BuildContext dialogContext) {
-                                return SizedBox(
-                                  height: 150,
-                                  child: Dialog(
+                              ? Timer(const Duration(seconds: 5), (){
 
-                                    child: Container(
-                                      padding: const EdgeInsets.all(10),
-                                      height: 100,
-                                      child: Column(
-                                        children: const [
-                                          CircularProgressIndicator(),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          Text("Loading...")
-                                        ],
-                                      ),
-                                    ),
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(40)),
-                                  ),
-                                );
-                              },
-                            );
-                            Provider.of<AppStateManager>(context, listen: false).goToHome();
-                          })
+                            AppConstants.pref.setBool(AppConstants.isLoggedIn, true);
+                            AppConstants.pref.setString(AppConstants.isUsername, resultData['register']['username']);
+
+
+                            Provider.of<AppStateManager>(context,
+                                listen: false)
+                                .goToHome(resultData['register']['username']);                          })
                               : null;
                         },
                       ),
@@ -255,11 +222,11 @@ class _SignUpState extends State<SignUp> {
                                         borderRadius:
                                             BorderRadius.circular(10))),
                                 onPressed: () {
-                                  print(_formKey.currentState!.validate());
+                                  // print(_formKey.currentState!.validate());
                                   setState(() {
                                     _toggleSigningUp = true;
                                   });
-                                  var res = runMutation({
+                                  runMutation({
                                     "registerInput": {
                                       'username':
                                           "@" + _usernameController.text.trim(),
@@ -267,17 +234,32 @@ class _SignUpState extends State<SignUp> {
                                           _passwordController.text.trim(),
                                       "email": _emailController.text.trim()
                                     }
-                                  }).eagerResult;
-                                  print("Soure Data $res");
+                                  });
+                                  // print("Soure Data $res");
                                 },
-                                child: Text(
-                                    _toggleSigningUp == false
-                                        ? "Sign Up"
-                                        : "Signing Up...",
-                                    style: GoogleFonts.quicksand(
-                                        textStyle: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18, fontWeight: FontWeight.bold)))));
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                        _toggleSigningUp == false ? "Sign Up":
+                                        "Signing Up... ",
+                                        style: GoogleFonts.quicksand(
+                                            textStyle: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold))),
+                                    _toggleSigningUp == true ? Container(
+                                      margin: const EdgeInsets.all(10),
+                                      height: 15,
+                                      width: 15,
+                                      child: const CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
+                                    ): const SizedBox()
+                                  ],
+                                )
+
+                            ));
                       },
                     ),
 

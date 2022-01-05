@@ -30,7 +30,9 @@ dependencies:
   flutter:
     sdk: flutter
   provider:
+  flutter_secure_storage:
   shared_preferences:
+  url_strategy:
   google_fonts:
   url_launcher: 
   graphql_flutter: 

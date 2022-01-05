@@ -2,79 +2,76 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:mikesweb/utils/constants.dart';
 
 
-class AppDrawerTabs {
-  static const int home = 0;
-  static const int inbox = 1;
-  static const int explore = 2;
-  static const int signUp = 3;
-  static const int signIn = 4;
-  static const int logOut = 5;
-}
+
 
 class AppStateManager extends ChangeNotifier {
-  bool _initialized = false;
 
-  bool _loggedIn = false;
-  bool _onboardingComplete = false;
-  int _selectAppDrawerTab = AppDrawerTabs.home;
+
+
+  final bool _initialized = AppConstants.pref.getBool(AppConstants.isInitialized) ?? false;
+  bool _loggedIn = AppConstants.pref.getBool(AppConstants.isLoggedIn) ?? false;
+  String  _username = AppConstants.pref.getString(AppConstants.isUsername) ?? "";
+  int _selectAppDrawerTab = AppConstants.pref.getInt(AppConstants.currentTab) ?? AppConstants.homeTab;
+
+
 
   bool darkMode = false;
 
   bool get isInitialized => _initialized;
   bool get isLoggedIn => _loggedIn;
-  bool get isOnboardingComplete => _onboardingComplete;
+  String get isUsername => _username;
   int get getSelectedTab => _selectAppDrawerTab;
 
-  void initializeApp() {
 
-    Timer(
-      const Duration(milliseconds: 500),
-          () {
-
-        _initialized = true;
-        _selectAppDrawerTab = AppConstants.signIn;
-
-        notifyListeners();
-      },
-    );
-  }
 
 
 
   void goToSignUp(){
-    _selectAppDrawerTab = AppConstants.signUp;
-    _onboardingComplete = false;
-    _loggedIn = false;
+    AppConstants.pref.setInt(AppConstants.currentTab, AppConstants.signUpTab);
+    _selectAppDrawerTab =  AppConstants.pref.getInt(AppConstants.currentTab)!;
     notifyListeners();
 
   }
   void goToSignIn(){
-    _selectAppDrawerTab = AppConstants.signIn;
-    _onboardingComplete = false;
-    _loggedIn = false;
+    AppConstants.pref.setInt(AppConstants.currentTab, AppConstants.signInTab);
+    _selectAppDrawerTab =  AppConstants.pref.getInt(AppConstants.currentTab)!;
+
     notifyListeners();
 
   }
 
   void logout(){
-    _loggedIn = false;
-    _initialized = false;
-    _onboardingComplete = false;
+    AppConstants.pref.setInt(AppConstants.currentTab, AppConstants.homeTab);
+    AppConstants.pref.setBool(AppConstants.isLoggedIn, false);
+    AppConstants.pref.setString(AppConstants.isUsername, '');
+
+
+   _loggedIn =   AppConstants.pref.getBool(AppConstants.isLoggedIn)!;
+
+    _selectAppDrawerTab =     AppConstants.pref.getInt(AppConstants.currentTab)!;
+
     notifyListeners();
   }
 
-  void goToHome(){
-    _onboardingComplete = true;
-    _loggedIn = true;
+  void goToHome(
+      [String? username]
+      ){
+
+
+    AppConstants.pref.setInt(AppConstants.currentTab, AppConstants.homeTab);
+    AppConstants.pref.setString(AppConstants.isUsername, username!);
+    _username = username;
+    _loggedIn =   AppConstants.pref.getBool(AppConstants.isLoggedIn)!;
+    _selectAppDrawerTab =     AppConstants.pref.getInt(AppConstants.currentTab)!;
+
+
     notifyListeners();
   }
 
-  void goToSelectedTab(int index){
-            _selectAppDrawerTab = index;
-            notifyListeners();
-  }
+
 
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:mikesweb/utils/constants.dart';
 
 class AppLink {
@@ -6,6 +5,7 @@ class AppLink {
   static const String kSplashPath = AppConstants.splashPath;
   static const String kSignInPath = AppConstants.signInPath;
   static const String kSignUpPath = AppConstants.signUpPath;
+  static const String kNotFoundPath = AppConstants.notFoundPath;
 
   static const String kTabParam = "tab";
   static const String kIdParam = "id";

@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    Provider.of<AppStateManager>(context, listen: false).initializeApp();
+    // Provider.of<AppStateManager>(context, listen: false).initializeApp();
   }
 
   @override

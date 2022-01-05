@@ -1,31 +1,30 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mikesweb/components/custom_textfield.dart';
 import 'package:mikesweb/models/app_pages.dart';
 import 'package:mikesweb/models/app_state_manager.dart';
-import 'package:mikesweb/screens/login.dart';
 import 'package:mikesweb/utils/constants.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
-  static MaterialPage page() {
+  static MaterialPage page({String? username}) {
     return MaterialPage(
         name: AppPages.homePath,
         key: ValueKey(AppPages.homePath),
-        child: const Home());
+        child:  Home(username: username));
   }
 
-  const Home({Key? key}) : super(key: key);
+   String? username;
+
+   Home({Key? key, this.username}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  bool _showDrawer = false;
+  final bool _showDrawer = false;
   bool _showSearchTitle = false;
 
   final TextEditingController _searchController = TextEditingController();
@@ -53,7 +52,6 @@ class _HomeState extends State<Home> {
       resizeToAvoidBottomInset: true,
       appBar: width! <= AppConstants.portraitBreakpoint
           ? AppBar(
-
               actions: [
                 IconButton(
                     onPressed: () {
@@ -65,13 +63,13 @@ class _HomeState extends State<Home> {
                 const SizedBox(
                   width: 10,
                 ),
-                CircleAvatar(
+                Provider.of<AppStateManager>(context).isLoggedIn == true ?  CircleAvatar(
                   backgroundColor: Colors.indigo,
                   child: Text(
                     "MD",
                     style: Theme.of(context).textTheme.headline3,
                   ),
-                ),
+                ) : const SizedBox(),
                 const SizedBox(
                   width: 10,
                 ),
@@ -95,17 +93,18 @@ class _HomeState extends State<Home> {
                 preferredSize:
                     Size.fromHeight(_showSearchTitle == true ? 50 : 1),
               ),
-        backgroundColor: Colors.teal,
+              backgroundColor: Colors.teal,
             )
           :
           // Landscape Nav Bar
           AppBar(
-            backgroundColor: Colors.teal,
-
-            leading: const SizedBox(),
+              backgroundColor: Colors.teal,
+              leading: const SizedBox(),
               title: Text(
                 "MikesWeb",
-                style: GoogleFonts.parisienne(textStyle: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                style: GoogleFonts.parisienne(
+                    textStyle: const TextStyle(
+                        fontSize: 28, fontWeight: FontWeight.bold)),
               ),
               actions: [
                 CustomTextField(
@@ -118,22 +117,27 @@ class _HomeState extends State<Home> {
                   controller: _searchController,
                   width: 400,
                 ),
-                const SizedBox(width: 10,),
-
-                CircleAvatar(
+                const SizedBox(
+                  width: 10,
+                ),
+                Provider.of<AppStateManager>(context).isLoggedIn == true ?  CircleAvatar(
                   backgroundColor: Colors.indigo,
                   child: Text(
                     "MD",
                     style: Theme.of(context).textTheme.headline3,
                   ),
-                ),
+                ) : const SizedBox(),
                 const SizedBox(
                   width: 10,
                 ),
-                Container(
+        Provider.of<AppStateManager>(context).isLoggedIn == true ?         Container(
                     padding: const EdgeInsets.only(top: 10),
-                    child: Text("@username", style: GoogleFonts.lobster(textStyle: const TextStyle(fontSize: 20, color: Colors.black)),)),
-
+                    child: Text(
+                      widget.username ?? "",
+                      style: GoogleFonts.lobster(
+                          textStyle: const TextStyle(
+                              fontSize: 20, color: Colors.black)),
+                    )) : const SizedBox(),
                 const SizedBox(
                   width: 10,
                 ),
@@ -141,8 +145,13 @@ class _HomeState extends State<Home> {
             ),
       key: _scaffoldKey,
       drawer: Drawer(
-        child: AppDrawer(showAppTitle:
-        width! <= AppConstants.portraitBreakpoint),
+        child:
+            AppDrawer(
+                username: AppConstants.pref.getString(AppConstants.isUsername) ?? '',
+
+                isLoggedIn: Provider.of<AppStateManager>(context, listen: false).isLoggedIn,
+                showAppTitle: width! <= AppConstants.portraitBreakpoint),
+
       ),
       body: SizedBox(
         height: height,
@@ -151,17 +160,17 @@ class _HomeState extends State<Home> {
                 child: Column(
                   children: [
                     Container(
-                      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 10),
                       height: 300,
                       width: width,
                       child: Center(
                           child: PageView(
-                            physics:const  BouncingScrollPhysics(),
-                            children: const [
-                              //TODO: Slide
-                            ],
-                          )
-                      ),
+                        physics: const BouncingScrollPhysics(),
+                        children: const [
+                          //TODO: Slide
+                        ],
+                      )),
                       color: Colors.green,
                     ),
                     const SizedBox(
@@ -200,6 +209,8 @@ class _HomeState extends State<Home> {
                           width: AppConstants.drawerWidth,
                           height: height,
                           child: AppDrawer(
+                            username: AppConstants.pref.getString(AppConstants.isUsername) ?? '',
+                            isLoggedIn: Provider.of<AppStateManager>(context, listen: false).isLoggedIn,
                             showAppTitle:
                                 width! <= AppConstants.portraitBreakpoint,
                           ),
@@ -235,24 +246,27 @@ class _HomeState extends State<Home> {
                             style: Theme.of(context).textTheme.headline3,
                           )),
                         ),
-
                         Container(
                             color: AppConstants.footerColor,
                             width: width! - AppConstants.drawerWidth,
-                            child: Row(
-                                children: [
-                                  Container(
-                                    width: width! - AppConstants.drawerWidth,
-
-                                    decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                            colors: [AppConstants.footerColor, AppConstants.footerColor])),
-                                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            child: Row(children: [
+                              Container(
+                                width: width! - AppConstants.drawerWidth,
+                                decoration: BoxDecoration(
+                                    gradient: LinearGradient(colors: [
+                                  AppConstants.footerColor,
+                                  AppConstants.footerColor
+                                ])),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 10),
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
                                       RichText(
                                         text: TextSpan(
                                           text:
-                                          "If you have questions, suggestions or required troubleshooting, write to us at ",
+                                              "If you have questions, suggestions or required troubleshooting, write to us at ",
                                           style: GoogleFonts.quicksand(
                                               textStyle: const TextStyle(
                                                   color: Colors.white,
@@ -261,15 +275,17 @@ class _HomeState extends State<Home> {
                                           children: <TextSpan>[
                                             TextSpan(
                                                 text: " support@emart.org",
-                                                style: const TextStyle(color: Colors.red),
-                                                recognizer: TapGestureRecognizer()
-                                                  ..onTap = () {
-                                                    print("Click");
-                                                  },
+                                                style: const TextStyle(
+                                                    color: Colors.red),
+                                                recognizer:
+                                                    TapGestureRecognizer()
+                                                      ..onTap = () {
+                                                        // print("Click");
+                                                      },
                                                 onEnter: (event) {}),
                                             const TextSpan(
                                               text:
-                                              " and we will try to figure it out.\n\nPlease provide us your email for daily updates of our products and services. ",
+                                                  " and we will try to figure it out.\n\nPlease provide us your email for daily updates of our products and services. ",
                                             )
                                           ],
                                         ),
@@ -300,29 +316,36 @@ class _HomeState extends State<Home> {
                                           style: ElevatedButton.styleFrom(
                                             primary: Colors.red,
                                             shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(10)),
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
                                           ),
                                           onPressed: () {},
                                           child: Text(
                                             "Subscribe",
                                             style: GoogleFonts.quicksand(
                                                 textStyle: const TextStyle(
-                                                    fontSize: 18, fontWeight: FontWeight.w500)),
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.w500)),
                                           ),
                                         ),
                                       ),
                                     ]),
-                                  ),
-                                ])),
+                              ),
+                            ])),
                         Container(
                           height: 30,
                           width: width! - AppConstants.drawerWidth,
                           color: Colors.black.withOpacity(0.9),
-                          child:  Center(
+                          child: Center(
                               child: Text(
-                                  "All rights reserved. Copyright @ 2021", style: GoogleFonts.quicksand(
-                                  textStyle: const TextStyle(
-                                      fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),) ),
+                            "All rights reserved. Copyright @ 2021",
+                            style: GoogleFonts.quicksand(
+                                textStyle: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white)),
+                          )),
                         )
                       ],
                     ),
@@ -356,7 +379,7 @@ class _HomeState extends State<Home> {
                     style: const TextStyle(color: Colors.red),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () {
-                        print("Click");
+                        // print("Click");
                       },
                     onEnter: (event) {}),
                 const TextSpan(
@@ -435,11 +458,16 @@ class _HomeState extends State<Home> {
 }
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({Key? key, required bool showAppTitle})
-      : _showAppTitle = showAppTitle,
+  const AppDrawer({Key? key, required bool showAppTitle, required bool isLoggedIn, required String username})
+      :
+        _showAppTitle = showAppTitle,
+        _username = username,
+        _isLoggedIn = isLoggedIn,
         super(key: key);
 
   final bool _showAppTitle;
+  final String _username;
+  final bool _isLoggedIn;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -452,8 +480,21 @@ class AppDrawer extends StatelessWidget {
                     children: [
                       Text(
                         "MikesWeb",
-                        style: GoogleFonts.parisienne(textStyle: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                        style: GoogleFonts.parisienne(
+                            textStyle: const TextStyle(
+                                fontSize: 28, fontWeight: FontWeight.bold)),
                       ),
+                      _isLoggedIn == true ?         Positioned(
+                        bottom: 0,
+                        child: Container(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Text(
+                              _username,
+                              style: GoogleFonts.lobster(
+                                  textStyle: const TextStyle(
+                                      fontSize: 20, color: Colors.black)),
+                            )),
+                      ) : const SizedBox(),
                     ],
                   ),
                 )
@@ -462,69 +503,79 @@ class AppDrawer extends StatelessWidget {
             height: 5,
           ),
           ListTile(
-            leading:  Icon(Icons.dashboard, color:Theme.of(context).iconTheme.color ,),
+            leading: Icon(
+              Icons.home,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            title: const Text("Home"),
+            onTap: () {
+              Provider.of<AppStateManager>(context, listen: false).goToHome();
 
-            title: const Text("Dashboard"),
-            onTap: () {},
-
+            },
             hoverColor: Colors.teal[200],
           ),
+
           ListTile(
-            leading:  Icon(Icons.mail, color: Theme.of(context).iconTheme.color),
+            leading: Icon(
+              Icons.star,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            title: const Text("News"),
+            onTap: () {
+              Provider.of<AppStateManager>(context, listen: false).goToHome();
 
-            title: const Text("Inbox"),
-            onTap: () {},
-
+            },
             hoverColor: Colors.teal[200],
           ),
-          ListTile(
-            leading:  Icon(Icons.explore, color: Theme.of(context).iconTheme.color),
-
+          _isLoggedIn == true ?   ListTile(
+            leading: Icon(Icons.mail, color: Theme.of(context).iconTheme.color),
+            title: const Text("Chats"),
+            onTap: () {},
+            hoverColor: Colors.teal[200],
+          ): const SizedBox(),
+          _isLoggedIn == true ?   ListTile(
+            leading:
+                Icon(Icons.explore, color: Theme.of(context).iconTheme.color),
             title: const Text("Explore"),
             onTap: () {},
-
             hoverColor: Colors.teal[200],
-          ),
-          ListTile(
-            leading:  Icon(Icons.settings, color: Theme.of(context).iconTheme.color),
-
+          ): const SizedBox(),
+          _isLoggedIn == true ?    ListTile(
+            leading:
+                Icon(Icons.settings, color: Theme.of(context).iconTheme.color),
             title: const Text("Settings"),
             onTap: () {},
-
             hoverColor: Colors.teal[200],
-          ),
-          ListTile(
-            leading:  Icon(Icons.star, color: Theme.of(context).iconTheme.color),
-
+          ): const SizedBox(),
+          _isLoggedIn == false ?    ListTile(
+            leading: Icon(Icons.star, color: Theme.of(context).iconTheme.color),
             title: const Text("Sign Up"),
             onTap: () {
               Provider.of<AppStateManager>(context, listen: false).goToSignUp();
-              print("Sign Up Clicked");
+              // print("Sign Up Clicked");
             },
-
             hoverColor: Colors.teal[200],
-          ),
-          ListTile(
-            leading:  Icon(Icons.star, color: Theme.of(context).iconTheme.color),
-
+          ) : const SizedBox(),
+          _isLoggedIn == false ?      ListTile(
+            leading: Icon(Icons.star, color: Theme.of(context).iconTheme.color),
             title: const Text("Sign In"),
             onTap: () {
               Provider.of<AppStateManager>(context, listen: false).goToSignIn();
-              print("Sign In Clicked");            },
-
+              // print("Sign In Clicked");
+            },
             hoverColor: Colors.teal[200],
-          ),
-          ListTile(
-            leading:  Icon(Icons.star, color: Theme.of(context).iconTheme.color),
-
+          ) : const SizedBox(),
+         _isLoggedIn == true ?  ListTile(
+            leading: Icon(Icons.star, color: Theme.of(context).iconTheme.color),
             title: const Text("Log Out"),
             onTap: () {
               Provider.of<AppStateManager>(context, listen: false).logout();
+
+
               print("Logout Clicked");
             },
-
             hoverColor: Colors.teal[200],
-          )
+          ): const SizedBox()
         ],
       ),
     );

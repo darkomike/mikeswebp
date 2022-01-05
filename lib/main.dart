@@ -4,22 +4,34 @@ import 'package:mikesweb/app_theme.dart';
 import 'package:mikesweb/models/app_state_manager.dart';
 import 'package:mikesweb/navigation/app_router.dart';
 import 'package:mikesweb/navigation/app_router_parser.dart';
-import 'package:mikesweb/screens/home_screen.dart';
 import 'package:mikesweb/utils/constants.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_strategy/url_strategy.dart';
+
+
+
+
 
 void main() async {
+  setPathUrlStrategy();
+AppConstants.pref = await  SharedPreferences.getInstance();
+
+AppConstants.pref.setInt(AppConstants.currentTab, AppConstants.pref.getInt(AppConstants.currentTab) ?? 0);
+AppConstants.pref.setString(AppConstants.isUsername, AppConstants.pref.getString(AppConstants.isUsername) ?? '');
+AppConstants.pref.setBool(AppConstants.isLoggedIn, AppConstants.pref.getBool(AppConstants.isLoggedIn) ?? false);
+
   await initHiveForFlutter();
   final HttpLink httpLink = HttpLink(AppConstants.serverUrl);
 
-  final AuthLink authLink =
-      AuthLink(getToken: () async => '');
+  final AuthLink authLink = AuthLink(getToken: () async => '');
 
   final Link link = authLink.concat(httpLink);
 
   ValueNotifier<GraphQLClient> client = ValueNotifier(
       GraphQLClient(cache: GraphQLCache(store: HiveStore()), link: link));
-  runApp( MikesWebApp(client: client));
+  runApp(MikesWebApp(client: client));
+
 }
 
 class MikesWebApp extends StatefulWidget {

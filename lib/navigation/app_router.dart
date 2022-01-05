@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mikesweb/models/app_pages.dart';
 import 'package:mikesweb/models/app_state_manager.dart';
@@ -32,15 +33,11 @@ class AppRouter extends RouterDelegate<AppLink>
       key: navigatorKey,
       onPopPage: _handlePopPage,
       pages: [
-        if (!appStateManager.isInitialized) SplashScreen.page(),
-        if ((appStateManager.isLoggedIn == false) &&
-            (appStateManager.isInitialized == true))
-          SignIn.page(),
-        if (appStateManager.getSelectedTab == AppDrawerTabs.signUp)
-          SignUp.page(),
-        if ((appStateManager.isInitialized == true) &&
-            appStateManager.isOnboardingComplete == true)
-          Home.page()
+
+        // if(Platform.isAndroid && appStateManager.isInitialized ) SplashScreen.page(),
+        if (appStateManager.getSelectedTab == AppConstants.signUpTab) SignUp.page(),
+        if (appStateManager.getSelectedTab == AppConstants.signInTab) SignIn.page(),
+        if (appStateManager.getSelectedTab == AppConstants.homeTab) Home.page(username: AppConstants.pref.getString(AppConstants.isUsername)),
       ],
     );
   }
@@ -56,6 +53,7 @@ class AppRouter extends RouterDelegate<AppLink>
     }
 
     if (route.settings.name == AppPages.signUpPath) {
+
       print(route.settings.name);
     }
     if (route.settings.name == AppPages.signinPath) {
@@ -68,19 +66,19 @@ class AppRouter extends RouterDelegate<AppLink>
   }
 
   AppLink getCurrentPath() {
-    if (appStateManager.isInitialized &&
-        appStateManager.getSelectedTab == AppConstants.signIn) {
+    if (
+        appStateManager.getSelectedTab == AppConstants.signInTab) {
       return AppLink(location: AppLink.kSignInPath);
     }
-    else if ((appStateManager.isInitialized == true) &&
-        appStateManager.isOnboardingComplete == true)
-    {
+
+    else if (appStateManager.getSelectedTab == AppConstants.signUpTab) {
+      return AppLink(location: AppLink.kSignUpPath);
+    }
+    else if (appStateManager.getSelectedTab == AppConstants.homeTab ) {
       return AppLink(location: AppLink.kHomePath);
     }
-    else if (appStateManager.isInitialized &&
-        appStateManager.getSelectedTab == AppConstants.signUp) {
-      return AppLink(location: AppLink.kSignUpPath);
-    } else {
+    else {
+
       return AppLink(location: AppLink.kHomePath);
     }
 
@@ -96,15 +94,13 @@ class AppRouter extends RouterDelegate<AppLink>
             appStateManager.goToHome();
         break;
       case AppLink.kSignUpPath:
-            appStateManager.goToSignUp();
+            AppConstants.pref.getBool(AppConstants.isLoggedIn) == true ?  appStateManager.goToHome() : appStateManager.goToSignUp();
         break;
       case AppLink.kSignInPath:
-            appStateManager.goToSignIn();
-        break;
-      case AppLink.kSplashPath:
-            appStateManager.initializeApp();
+        AppConstants.pref.getBool(AppConstants.isLoggedIn) == true ?  appStateManager.goToHome() : appStateManager.goToSignIn();
         break;
       default:
+
         break;
     }
   }
